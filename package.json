@@ -1,0 +1,27 @@
+{
+  "name": "gator",
+  "version": "1.0.0",
+  "description": "The Blog aggregator app with Boot.dev <3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx ./src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rcy007/gator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rcy007/gator/issues"
+  },
+  "homepage": "https://github.com/rcy007/gator#readme",
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "type": "module"
+}
