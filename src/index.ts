@@ -1,9 +1,8 @@
-function main(){
-    console.log("Hello, world!\n\n");
+import { readConfig, setUser } from "./config";
 
-const testing = '[1,2,3]'
-let final = JSON.parse(testing, (key, value) => typeof(value) === "number" ? value*2 : value);
-console.log(final);
+function main(){
+    setUser("Ricky");
+    console.log(readConfig(true));
 }
 
 main();
