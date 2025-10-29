@@ -1,6 +1,5 @@
 // export type Config = Record<string, string>;
 import fs from "fs";
-import { validateHeaderValue } from "http";
 import os from "os";
 import path from "path";
 
