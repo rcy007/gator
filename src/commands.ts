@@ -1,8 +1,83 @@
 import { setUser } from "./config";
 import { createUser, getUser, getUsers, truncUser } from "./lib/db/queries/users";
 import { readConfig } from "./config";
+import { XMLParser } from "fast-xml-parser"
+import { title } from "process";
+
+type RSSFeed = {
+  channel: {
+    title: string;
+    link: string;
+    description: string;
+    item: RSSItem[];
+  };
+};
+
+type RSSItem = {
+  title: string;
+  link: string;
+  description: string;
+  pubDate: string;
+};
+
+async function fetchFeed(feedURL: string){
+    try{
+    const res = await fetch(feedURL, {
+        method: "GET",
+        headers: {
+            "User-Agent": "gator"
+        }
+     });
+    if (!res.ok) {
+      throw new Error(`Response status: ${res.status}`);
+    }
+    const tx = await res.text();
+    const parser = new XMLParser();
+    const final: RSSFeed = parser.parse(tx).rss;
+    // console.log(final);
+    if(final.channel){
+        // console.log(final);
+        if(final.channel.title && final.channel.link && final.channel.description){
+            const output: RSSFeed = {channel: {
+                title: final.channel.title,
+                link: final.channel.link,
+                description: final.channel.description,
+                item: []
+            }};
+            if(final.channel.item){
+                if(Array.isArray(final.channel.item)){
+                    for(const item of final.channel.item){
+                        if(item.title && item.pubDate && item.link && item.description){
+                            output.channel.item.push({title: item.title, pubDate: item.pubDate, link: item.link, description: item.description});
+                        }
+                    }
+                }
+            }
+            
+        console.log(output.channel);
+        } else{
+            throw new Error("Missing essential fields in Channel!");
+        }
+    } else{
+        throw new Error("Channel not found in parsed JSON!");
+    }
+    } catch(e: any){
+        throw new Error(e.message);
+    }
+
+
+
+}
 
 export type CommandHandler =  (cmdName: string, ...args: string[]) => Promise<void>;
+
+export async function aggHandler(cmdName: string, ...args: string[]) {
+    if (args.length === 0) {
+        await fetchFeed("https://www.wagslane.dev/index.xml");
+    } else {
+        throw new Error("Invalid arguments!");
+    }
+}
 
 export async function usersHandler(cmdName: string, ...args: string[]) {
     if (args.length === 0) {

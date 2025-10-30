@@ -1,5 +1,6 @@
-import { readConfig, setUser } from "./config";
-import { CommandsRegistry, registerCommand, loginHandler, runCommand, registerHandler, resetHandler, usersHandler } from "./commands";
+import { CommandsRegistry, registerCommand, loginHandler,
+     runCommand, registerHandler, resetHandler,
+     usersHandler, aggHandler } from "./commands";
 import process from "process";
 async function main() {
 
@@ -10,6 +11,7 @@ async function main() {
     registerCommand(command, "register", registerHandler);
     registerCommand(command, "reset", resetHandler);
     registerCommand(command, "users", usersHandler);
+    registerCommand(command, "agg", aggHandler);
     try {
         if (cmd) {
             await runCommand(command, cmd, ...others);
