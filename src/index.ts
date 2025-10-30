@@ -1,16 +1,17 @@
 import { readConfig, setUser } from "./config";
-import { CommandsRegistry, registerCommand, loginHandler, runCommand } from "./commands";
+import { CommandsRegistry, registerCommand, loginHandler, runCommand, registerHandler } from "./commands";
 import process from "process";
-function main() {
+async function main() {
 
     const [cmd, first, ...others] = process.argv.slice(2);
 
     const command: CommandsRegistry = {};
     registerCommand(command, "login", loginHandler);
+    registerCommand(command, "register", registerHandler);
     try {
         if (cmd) {
             if (first) {
-                runCommand(command, cmd, first);
+                await runCommand(command, cmd, first);
                 process.exit(0);
             } else {
                 throw new Error("A username is required.");
@@ -27,4 +28,6 @@ function main() {
 
 }
 
-main();
+await main();
+
+process.exit(0);
