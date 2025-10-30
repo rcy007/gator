@@ -1,6 +1,11 @@
-const x = {};
+import process from "process";
 
-function lala(x) { x['some'] = 1;};
+const [cmd, ...others] = process.argv.slice(2);
 
-lala(x);
-console.log(x);
+console.log(others);
+
+if(others){
+    console.log(22);
+} else{
+    console.log(33);
+}

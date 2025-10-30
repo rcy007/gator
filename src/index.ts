@@ -1,26 +1,24 @@
 import { readConfig, setUser } from "./config";
-import { CommandsRegistry, registerCommand, loginHandler, runCommand, registerHandler } from "./commands";
+import { CommandsRegistry, registerCommand, loginHandler, runCommand, registerHandler, resetHandler, usersHandler } from "./commands";
 import process from "process";
 async function main() {
 
-    const [cmd, first, ...others] = process.argv.slice(2);
+    const [cmd, ...others] = process.argv.slice(2);
 
     const command: CommandsRegistry = {};
     registerCommand(command, "login", loginHandler);
     registerCommand(command, "register", registerHandler);
+    registerCommand(command, "reset", resetHandler);
+    registerCommand(command, "users", usersHandler);
     try {
         if (cmd) {
-            if (first) {
-                await runCommand(command, cmd, first);
-                process.exit(0);
-            } else {
-                throw new Error("A username is required.");
-            }
+            await runCommand(command, cmd, ...others);
+            process.exit(0);
         } else {
-            throw new Error("Not enough arguments were provided.");
+            throw new Error("No command was given.");
         }
     } catch (e: any) {
-        console.log(e.message);
+        console.log("Error: "+e.message);
         process.exit(1);
     }
 

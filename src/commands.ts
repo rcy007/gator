@@ -1,7 +1,37 @@
 import { setUser } from "./config";
-import { createUser, getUser } from "./lib/db/queries/users";
+import { createUser, getUser, getUsers, truncUser } from "./lib/db/queries/users";
+import { readConfig } from "./config";
 
 export type CommandHandler =  (cmdName: string, ...args: string[]) => Promise<void>;
+
+export async function usersHandler(cmdName: string, ...args: string[]) {
+    if (args.length === 0) {
+        try {
+            const tr = await getUsers();
+            const current = readConfig().currentUserName;
+            tr.forEach((x)=> x.name === current ? console.log(x.name+" (current)") : console.log(x.name));
+        } catch (e: any) {
+            throw new Error(e.message);
+        }
+    } else {
+        throw new Error("Invalid arguments!");
+    }
+}
+
+export async function resetHandler(cmdName: string, ...args: string[]){
+    if(args.length === 0){
+        try{
+        const tr = await truncUser();
+        // console.log(tr);
+        console.log("Users table was truncated!");
+        } catch(e: any){
+            throw new Error(e.message);
+        }
+    } else{
+        throw new Error("Invalid arguments!");
+    }
+}
+
 
 export async function loginHandler(cmdName: string, ...args: string[]){
     if(args.length !== 1){
