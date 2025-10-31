@@ -1,8 +1,9 @@
-import { setUser } from "./config";
-import { createUser, getUser, getUsers, truncUser } from "./lib/db/queries/users";
-import { readConfig } from "./config";
+import { setUser, readConfig } from "./config";
+import { createFeed, createUser, getUser, getUsers, truncUser } from "./lib/db/queries/users";
 import { XMLParser } from "fast-xml-parser"
 import { title } from "process";
+import { Feed, feeds, User } from "src/lib/db/schema";
+
 
 type RSSFeed = {
   channel: {
@@ -71,6 +72,36 @@ async function fetchFeed(feedURL: string){
 
 export type CommandHandler =  (cmdName: string, ...args: string[]) => Promise<void>;
 
+export async function addfeedHandler(cmdName: string, ...args: string[]) {
+    if (args.length !== 2){
+        throw new Error("Invalid arguments!");
+    }
+    const [name, url] = args;
+    const config = readConfig();
+    const user = await getUser(config.currentUserName);
+
+    if(!user){
+        throw new Error(`User ${config.currentUserName} not found!`);
+    }
+
+    const res = await createFeed(user.id, name, url);
+    if (!res){
+        throw new Error("Failed to create feed!");
+    }
+    console.log("Feed created successfully: ");
+    printFeed(res, user);
+
+}
+
+function printFeed(feed: Feed, user: User) {
+  console.log(`* ID:            ${feed.id}`);
+  console.log(`* Created:       ${feed.createdAt}`);
+  console.log(`* Updated:       ${feed.updatedAt}`);
+  console.log(`* name:          ${feed.name}`);
+  console.log(`* URL:           ${feed.url}`);
+  console.log(`* User:          ${user.name}`);
+}
+
 export async function aggHandler(cmdName: string, ...args: string[]) {
     if (args.length === 0) {
         await fetchFeed("https://www.wagslane.dev/index.xml");
@@ -118,7 +149,7 @@ export async function loginHandler(cmdName: string, ...args: string[]){
             throw new Error("User does not exist in database!");
         }
         setUser(user);
-        console.log(user+" has been set!");
+        console.log(user+" has been set as the current user!");
     }
 }
 
@@ -135,7 +166,7 @@ export async function registerHandler(cmdName: string, ...args: string[]) {
                     try {
                         // console.log(gres);
                         setUser(user);
-                        console.log(user + " has been set!");
+                        console.log(user + " has been set as the current user!");
                         console.log(res);
                     } catch (e: any) {
                         throw new Error("User is added but FAILURE to set User! " + e.message);
