@@ -1,5 +1,5 @@
 import { setUser, readConfig } from "./config";
-import { createFeed, createUser, getUser, getUsers, truncUser } from "./lib/db/queries/users";
+import { createFeed, createUser, getFeeds, getUser, getUsers, truncUser } from "./lib/db/queries/users";
 import { XMLParser } from "fast-xml-parser"
 import { title } from "process";
 import { Feed, feeds, User } from "src/lib/db/schema";
@@ -71,6 +71,21 @@ async function fetchFeed(feedURL: string){
 }
 
 export type CommandHandler =  (cmdName: string, ...args: string[]) => Promise<void>;
+
+export async function feedsHandler(cmdName: string, ...args: string[]) {
+    if (args.length !== 0) {
+        throw new Error("Unexpected arguments!");
+    }
+    const result = await getFeeds();
+    if(!result) throw new Error("Could not fetch feeds!");
+    
+    result.forEach((values) => {
+        console.log("--- FEED ---");
+        for (const [key, value] of Object.entries(values)) {
+            console.log(`${key} : ${value}`);
+        }
+    })
+}
 
 export async function addfeedHandler(cmdName: string, ...args: string[]) {
     if (args.length !== 2){

@@ -26,3 +26,12 @@ export async function createFeed(user: string, name: string, url: string) {
   const [result] = await db.insert(feeds).values({ userId: user, name: name, url: url }).returning();
   return result;
 }
+
+export async function getFeeds(){
+    const result = await db.select({
+        name: feeds.name,
+        url: feeds.url,
+        userName: users.name
+    }).from(feeds).innerJoin(users, eq(feeds.userId, users.id))
+    return result;
+}
