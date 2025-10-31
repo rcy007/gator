@@ -1,5 +1,5 @@
 import { setUser, readConfig } from "./config";
-import { createFeed, createUser, getFeeds, getUser, getUsers, truncUser } from "./lib/db/queries/users";
+import { getFeedFollowsForUser, createFeed, createFeedFollow, createUser, getFeeds, getUser, getUsers, truncUser } from "./lib/db/queries/users";
 import { XMLParser } from "fast-xml-parser"
 import { title } from "process";
 import { Feed, feeds, User } from "src/lib/db/schema";
@@ -72,13 +72,41 @@ async function fetchFeed(feedURL: string){
 
 export type CommandHandler =  (cmdName: string, ...args: string[]) => Promise<void>;
 
+export async function followingHandler(cmdName: string, ...args: string[]) {
+    if (args.length !== 0) {
+        throw new Error("Unexpected arguments!");
+    }
+    const result = await getFeedFollowsForUser();
+    if(!result) throw new Error("Could not get followed feeds!");
+
+    const user = readConfig().currentUserName;
+    if(result.length === 0) console.log(`Sorry, no feeds found for the user: ${user}`);
+
+    console.log(`Feeds followed by the ${user} are: `);
+    result.forEach((values) => {console.log(values.feedName)});
+
+}
+
+export async function followHandler(cmdName: string, ...args: string[]) {
+    if (args.length !== 1) {
+        throw new Error("Unexpected arguments!");
+    }
+    const url = args[0];
+    const result = await createFeedFollow(url);
+    if(!result) throw new Error("Could not add follow!");
+    for (const [key, value] of Object.entries(result)) {
+            console.log(`${key} : ${value}`);
+        }
+
+}
+
 export async function feedsHandler(cmdName: string, ...args: string[]) {
     if (args.length !== 0) {
         throw new Error("Unexpected arguments!");
     }
     const result = await getFeeds();
     if(!result) throw new Error("Could not fetch feeds!");
-    
+
     result.forEach((values) => {
         console.log("--- FEED ---");
         for (const [key, value] of Object.entries(values)) {
@@ -104,6 +132,10 @@ export async function addfeedHandler(cmdName: string, ...args: string[]) {
         throw new Error("Failed to create feed!");
     }
     console.log("Feed created successfully: ");
+
+    const newres = await createFeedFollow(url);
+    if(!newres) throw new Error("Failed to create corresponding follow!");
+
     printFeed(res, user);
 
 }

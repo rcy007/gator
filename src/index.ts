@@ -1,7 +1,7 @@
 import { CommandsRegistry, registerCommand, loginHandler,
      runCommand, registerHandler, resetHandler,
      usersHandler, aggHandler, addfeedHandler,
-    feedsHandler } from "./commands";
+    feedsHandler, followHandler, followingHandler } from "./commands";
 import process from "process";
 async function main() {
 
@@ -15,6 +15,8 @@ async function main() {
     registerCommand(command, "agg", aggHandler);
     registerCommand(command, "addfeed", addfeedHandler);
     registerCommand(command, "feeds", feedsHandler);
+    registerCommand(command, "follow", followHandler);
+    registerCommand(command, "following", followingHandler);
 
     try {
         if (cmd) {
